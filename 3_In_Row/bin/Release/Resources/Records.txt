@@ -1,0 +1,15 @@
+01| TopPop    |9999999|
+02| Obe       |2865846|
+03| Vinelaul  |0798879|
+04| Sstel     |0308557|
+05| Qicendo   |0091759|
+06| Uerrlanni |0048364|
+07| Narionerl |0028743|
+08| Jeathisca |0018957|
+09| Edyllasit |0011751|
+10| Shistali  |0007335|
+11| Vamn      |0004777|
+12| lurmor    |0001720|
+13| Umpalump  |0001370|
+14| Oin       |0001364|
+15| Rer       |0000982|
