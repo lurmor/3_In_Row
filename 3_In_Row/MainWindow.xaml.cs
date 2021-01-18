@@ -76,8 +76,7 @@ namespace _3_In_Row
         void tick(object sender, EventArgs e) //"шаг"игры 
         {
             
-            if (!filed.Drop()) //пытаемся опустить шарики
-                if (filed.CheckLiens())//если невозможно, пытаемся удалить линии
+            if (!filed.Drop() && filed.CheckLiens()) //пытаемся опустить шарики                
                     recordCore.addPoints(filed.points);//если хоть одна линия удалилась добавляем подсчитаные очки
             if (filed.combo > 1) ComboL.Content = "COMBO X" + (filed.combo );
             else ComboL.Content = "";

@@ -17,7 +17,7 @@ namespace _3_In_Row
         const int n = 15;
         int[] ScoreList = new int[n + 1];
         string[] NameList = new string[n + 1];
-
+        
         int score = 0;
 
         public RecordCore()
@@ -29,7 +29,7 @@ namespace _3_In_Row
             using (Stream stream = a.GetManifestResourceStream("_3_In_Row.Resources.Records.txt"))
             {
                 StreamReader reader = new StreamReader(stream);
-                for (int j = 0; j < 15; j++)
+                for (int j = 0; j < n; j++)
                 {
                     line = reader.ReadLine();
                     recordTable.Add(line);

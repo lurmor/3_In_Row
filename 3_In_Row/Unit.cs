@@ -21,7 +21,7 @@ namespace _3_In_Row
         public Unit(int x, int y, int seed)
         {
             rand = new Random(seed+x+y);
-            img.Tag = x * 100 + y;
+            img.Tag = x * 100 + y;//сохранение координат в тег, x в сотни у в еденицы
             X = x;
             Y = y;
             RandomTipe();           

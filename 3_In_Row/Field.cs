@@ -7,8 +7,8 @@ namespace _3_In_Row
 {
     class Field//Класс управляющий основными игровыми возможностями
     {
-        const int x = 8, y = 10;
-        public Unit[,] table = new Unit[x, y];
+        const int height = 8, width = 10;
+        public Unit[,] table = new Unit[height, width];
         int seed;
         public int combo = 1;
         public int points = 0;
@@ -16,22 +16,28 @@ namespace _3_In_Row
         Unit clicedUnit = null, swapedUnit1, swapedUnit2;
 
 
+
         public Field()
         {
             //заполнение таблицы для поля
             //первый ряд сучайными, остальные пустыми 
-            seed = 33 * (int)DateTime.Now.Ticks;
-            for (int i = 0; i < y; i++)
+            seed = (int)DateTime.Now.Ticks;
+            for (int i = 0; i < width; i++)
             {
-                for (int j = 0; j < x; j++)
+                for (int j = 0; j < height; j++)
                 {
                     Unit u = new Unit(j, i, seed);
                     if (j != 0) { u.SetTipe(0); }
-                    seed = seed * 7 + 11;
+                    apdateSeed();
                     table[j, i] = u;
                     u.img.MouseDown += MouseDown;
                 }
             }
+        }
+
+        void apdateSeed()
+        {
+            seed = seed * 7 + 11;//два простых числа для минимальной цикличности
         }
 
         public bool Drop()
@@ -39,8 +45,8 @@ namespace _3_In_Row
             //points = 0;
             bool ItsDroped = false;
             //проходим по таблице в обратном направлении
-            for (int i = y - 1; i >= 0; i--)
-            for (int j = x - 1; j >= 0; j--)
+            for (int i = width - 1; i >= 0; i--)
+            for (int j = height - 1; j >= 0; j--)
             if (table[j, i].tipe == 0)
             {//если ячейка пуста смещаем её тип и тип всех ячеек над ней на клутку вниз
                 for (int k = j; k >= 0; k--)
@@ -48,7 +54,7 @@ namespace _3_In_Row
                     if (k == 0)//если это верхний ряд запоняем ячейку случайным типом
                     {
                         table[k, i].RandomTipe();
-                        seed = seed * 7 + 11;
+                        apdateSeed();                    
                     }
                     else table[k, i].SetTipe(table[k - 1, i].tipe);
                 }
@@ -63,47 +69,47 @@ namespace _3_In_Row
             bool LineFound = false;
             points = 0;
             List<Unit> UnitsToDelete = new List<Unit>();//лист ячеек на удвление
-            for (int i = 0; i < y; i++)//проход по стобцам, лучще лично обясню как это работает
+            for (int i = 0; i < width; i++)//проход по стобцам
             {
-                int m = table[0, i].tipe, n = 1;
-                for (int j = 0; j < x; j++)
+                int lastTipe = table[0, i].tipe, numberInLine = 1;//
+                for (int j = 0; j < height; j++)
                 {
-                    if (m == table[j, i].tipe && j != 0) n++;
+                    if (lastTipe == table[j, i].tipe && j != 0) numberInLine++;
                     else
                     {
-                        if (n > 2) combo++;
-                        n = 1;
+                        if (numberInLine > 2) combo++;
+                        numberInLine = 1;
                     }
-                    if (n > 2)
+                    if (numberInLine > 2)
                     {
                         points += 10 * (combo );//добавение очков за линию
                         UnitsToDelete.Add(table[j - 2, i]);
                         UnitsToDelete.Add(table[j - 1, i]);
                         UnitsToDelete.Add(table[j, i]);                        
                     }
-                    m = table[j, i].tipe;
+                    lastTipe = table[j, i].tipe;
                 }
             }
 
-            for (int j = 0; j < x; j++)//то же самое тоько по строкам
+            for (int j = 0; j < height; j++)//то же самое тоько по строкам
             {
-                int m = table[j, 0].tipe, n = 1;
-                for (int i = 1; i < y; i++)
+                int lastTipe = table[j, 0].tipe, numberInLine = 1;
+                for (int i = 1; i < width; i++)
                 {
-                    if (m == table[j, i].tipe && i != 0) n++;
+                    if (lastTipe == table[j, i].tipe && i != 0) numberInLine++;
                     else
                     {
-                        if (n > 2) combo++;
-                        n = 1;
+                        if (numberInLine > 2) combo++;
+                        numberInLine = 1;
                     }
-                    if (n > 2)
+                    if (numberInLine > 2)
                     {
                         points += 10 * (combo);
                         UnitsToDelete.Add(table[j, i - 2]);
                         UnitsToDelete.Add(table[j, i - 1]);
                         UnitsToDelete.Add(table[j, i]);
                     }
-                    m = table[j, i].tipe;
+                    lastTipe = table[j, i].tipe;
                 }
             }
 
@@ -128,20 +134,29 @@ namespace _3_In_Row
 
             return LineFound;//вернуть были ли найдены 3 и более в ряд
         }
+
+        void tableOpacity (bool mode)
+        {
+            double opacity = 0.5 ;
+            if (mode) opacity = 1;
+
+            foreach (Unit unit in table)
+            {
+                unit.img.Opacity = opacity;
+                unit.img.IsEnabled = mode;
+            }
+        }
+
         public void MouseDown(object sender, MouseButtonEventArgs e)//логика хода
         {
             Image img = (Image)sender;
             //вычисление координат выбранной кнопки
-            int x = int.Parse(img.Tag.ToString()) / 100;
-            int y = int.Parse(img.Tag.ToString()) % 100;
+            int x = (int)img.Tag / 100;
+            int y = (int)img.Tag % 100;
 
             if (table[x, y] == clicedUnit)//отмена выбора при повторном клике
             {
-                foreach (Unit unit in table)
-                {
-                    unit.img.Opacity = 1;
-                    unit.img.IsEnabled = true;
-                }
+                tableOpacity(true);
                 clicedUnit = null;
             }
             else
@@ -154,24 +169,17 @@ namespace _3_In_Row
                     swapedUnit1 = table[x, y];
                     swapedUnit2 = clicedUnit;
                     swapFlag = true;
-                    foreach (Unit unit in table)
-                    {
-                        unit.img.Opacity = 1;
-                        unit.img.IsEnabled = true;
-                    }
+                    tableOpacity(true);
                     clicedUnit = null;
                 }
                 else
                 {//логика выбора ячейки
-                    foreach (Unit unit in table)//блокировка всех ячеек
-                    {
-                        unit.img.Opacity = 0.5;
-                        unit.img.IsEnabled = false;
-                    }
+                    tableOpacity(false);//блокировка всех ячеек
+                   
                     {//разблокировка "креста" ячеек
                         table[x, y].img.Opacity = 1;
                         table[x, y].img.IsEnabled = true;
-                        if (x != Field.x-1)
+                        if (x != Field.height - 1)
                         {
                             table[x + 1, y].img.Opacity = 1;
                             table[x + 1, y].img.IsEnabled = true;
@@ -181,7 +189,7 @@ namespace _3_In_Row
                             table[x - 1, y].img.Opacity = 1;
                             table[x - 1, y].img.IsEnabled = true;
                         }
-                        if (y != Field.y-1)
+                        if (y != Field.width - 1)
                         {
                             table[x, y + 1].img.Opacity = 1;
                             table[x, y + 1].img.IsEnabled = true;
